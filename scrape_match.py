@@ -67,8 +67,10 @@ def scrape_match(link):
             mapPick=x.select_one('.pick img')
             dictMaps["map"+str(i+1)]=(mapName.contents[0],"-".join([x.contents[0] for x in mapScore]),mapPick['title'] if mapPick!=None else 'decider')
     info["map_scores_picks"]=dictMaps
-
-    
+    #match start time with gmt+1 time
+    info['time']=soup.select_one(".timeAndEvent .time").contents[0]
+    #print((soup.select_one(".timeAndEvent .event a")['href'],soup.select_one(".timeAndEvent .time")['title']))
+    info['event']=(soup.select_one(".timeAndEvent .event a")['title'],"https://www.hltv.org"+soup.select_one(".timeAndEvent .event a")['href'])
     return info
 
-#print(scrape_match("https://www.hltv.org/matches/2343851/lese-vs-ex-incept-esea-mdl-season-35-australia"))
+#print(scrape_match("https://www.hltv.org/matches/2343647/g2-vs-ence-esl-pro-league-season-12-europe"))

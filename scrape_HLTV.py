@@ -11,8 +11,10 @@ hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
        'Connection': 'keep-alive'}
 
 def scrape_links_bydate(n=5):
+    #print(n)
     dates_links={}
-    for i in range(n):
+    for i in range(min(n,554)):
+        print(i)
         if i==0:
             site="https://www.hltv.org/results"
             req = urllib2.Request(site, headers=hdr)
@@ -22,7 +24,7 @@ def scrape_links_bydate(n=5):
             # print(all_dates)
 
             for i in soup.select_one("[data-zonedgrouping-headline-format=\"'Results for' MMMM do y\"]").select('.results-sublist'):
-                L=["https://www.hltv.org"+x['href'] for x in i.select('.result-con a')]
+                #L=["https://www.hltv.org"+x['href'] for x in i.select('.result-con a')]
                 date=i.select_one('.standard-headline').contents[0][12:]
                 links=["https://www.hltv.org"+x['href'] for x in i.select('.result-con a')]
                 dates_links[date]=links
@@ -34,21 +36,26 @@ def scrape_links_bydate(n=5):
             #all_dates=[x.contents[0][12:] for x in  soup.select('.results-sublist span:first-of-type.standard-headline')] 
             # print(all_dates)
             for i in soup.select_one("[data-zonedgrouping-headline-format=\"'Results for' MMMM do y\"]").select('.results-sublist'):
-                L=["https://www.hltv.org"+x['href'] for x in i.select('.result-con a')]
+                #L=["https://www.hltv.org"+x['href'] for x in i.select('.result-con a')]
                 date=i.select_one('.standard-headline').contents[0][12:]
                 links=["https://www.hltv.org"+x['href'] for x in i.select('.result-con a')]
                 dates_links[date]=links
-            
     return dates_links
 
-datelinks=scrape_links_bydate(2)
+datelinks=scrape_links_bydate(20000)
 final=[]
+with open('pages_links.json', 'w') as f:
+    json.dump(datelinks, f)
+
 for d, L in datelinks.items():
     for i in L:
-        print(i)
-        temp=scrape_match(i)
-        temp['date']=d
-        final.append(temp)
+        try:
+            temp=scrape_match(i)
+            temp['date']=d
+            final.append(temp)
+        except Exception as e:
+            print(f'Error {str(e)} with link {i}')
+            continue
         
 with open('result_test.json', 'w') as f:
     json.dump(final, f)
