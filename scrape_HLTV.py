@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib.request as urllib2
-from scrape_match import scrape_match
+#from scrape_match import scrape_match
 import json
 
 hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -10,7 +10,7 @@ hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
        'Accept-Language': 'en-US,en;q=0.8',
        'Connection': 'keep-alive'}
 
-def scrape_links_bydate(n=5):
+def scrape_links_date(n=5):
     #print(n)
     dates_links={}
     for i in range(min(n,554)):
@@ -42,20 +42,20 @@ def scrape_links_bydate(n=5):
                 dates_links[date]=links
     return dates_links
 
-datelinks=scrape_links_bydate(20000)
+datelinks=scrape_links_date(20000)
 final=[]
 with open('pages_links.json', 'w') as f:
     json.dump(datelinks, f)
 
-for d, L in datelinks.items():
-    for i in L:
-        try:
-            temp=scrape_match(i)
-            temp['date']=d
-            final.append(temp)
-        except Exception as e:
-            print(f'Error {str(e)} with link {i}')
-            continue
+# for d, L in datelinks.items():
+#     for i in L:
+#         try:
+#             temp=scrape_match(i)
+#             temp['date']=d
+#             final.append(temp)
+#         except Exception as e:
+#             print(f'Error {str(e)} with link {i}')
+#             continue
         
-with open('result_test.json', 'w') as f:
-    json.dump(final, f)
+# with open('result_test.json', 'w') as f:
+#     json.dump(final, f)

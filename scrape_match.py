@@ -28,7 +28,12 @@ def scrape_match(link):
     team1={'name':t1[0]['title'],'logoUrl':t1[0]['src'],'teamPageUrl':"https://www.hltv.org"+soup.select_one('div.team1-gradient a')['href'],'ranking':a}
     team2={'name':t2[0]['title'],'logoUrl':t2[0]['src'],'teamPageUrl':"https://www.hltv.org"+soup.select_one('div.team2-gradient a')['href'],'ranking':b}
 
-    
+    #getting regions/country
+    team1['region-country']=soup.select_one('div.team img.team1')['title'] if soup.select_one('div.team img.team1')!=None else 'Unknown'
+    team2['region-country']=soup.select_one('div.team img.team2')['title'] if soup.select_one('div.team img.team2')!=None else 'Unknown'
+    team1['region-country-flag']=soup.select_one('div.team img.team1')['src'] if soup.select_one('div.team img.team1')!=None else 'Unknown'
+    team2['region-country-flag']=soup.select_one('div.team img.team2')['src'] if soup.select_one('div.team img.team2')!=None else 'Unknown'
+
     #past5matches
     first=True
     pastmatches=soup.select('div.past-matches table.table.matches')
@@ -42,7 +47,46 @@ def scrape_match(link):
             first=False
         else:
             team2['history']=list(zip(teamsH,resultH,scoreH))
-    info['teams']=(team1,team2)
+            
+    #scrap team rosters
+    first=True
+    rosters=soup.select('div.lineup div.players table')
+    for r in rosters:
+        #for k in r
+        L=[x['title'] if r.select("td.player.player-image a div img")!=None else "Player not registered" for x in r.select("td.player a div img") ]
+        players=L[:5]
+        nationality=L[5:]
+        links=[]
+        for x in r.select("tr:first-child td.player a"):
+            if x.has_attr('href'):
+                links.append("https://www.hltv.org"+x['href'])
+            else:
+                links.append('no link')
+        origin=[]
+        #print(links)
+        #print(nationality)
+        #links=["https://www.hltv.org"+x['href'] if x['href']!=None else "No player link" for x in r.select("td.player a")]
+
+        if first:
+            team1['roster']=players
+            team1['rosterPageLinks']=links
+            team1['Nationalities']=nationality
+            first=False
+        else:
+            team2['roster']=players
+            team2['rosterPageLinks']=links
+            team2['Nationalities']=nationality
+    info['team1']=team1
+    info['team2']=team2
+    
+    #ratings and performance 
+    # stats=soup.select("div#all-content table.table.totalstats")
+    # if (stats!=[]):
+    #     print(stats[0])
+    #     team1stats=stats[0].select('tr td.players div.statsPlayerName')
+
+    # else:
+    #     info['stats']='no stats'
     #score
     score=soup.select_one('div.team1-gradient > div').contents[0]+"-"+soup.select_one('div.team2-gradient > div').contents[0]
     info['score']=score
@@ -67,10 +111,10 @@ def scrape_match(link):
             mapPick=x.select_one('.pick img')
             dictMaps["map"+str(i+1)]=(mapName.contents[0],"-".join([x.contents[0] for x in mapScore]),mapPick['title'] if mapPick!=None else 'decider')
     info["map_scores_picks"]=dictMaps
-    #match start time with gmt+1 time
+    #match start time (gmt+1 timezone)
     info['time']=soup.select_one(".timeAndEvent .time").contents[0]
     #print((soup.select_one(".timeAndEvent .event a")['href'],soup.select_one(".timeAndEvent .time")['title']))
     info['event']=(soup.select_one(".timeAndEvent .event a")['title'],"https://www.hltv.org"+soup.select_one(".timeAndEvent .event a")['href'])
     return info
 
-#print(scrape_match("https://www.hltv.org/matches/2343647/g2-vs-ence-esl-pro-league-season-12-europe"))
+#print(scrape_match("https://www.hltv.org/matches/2343907/imperial-vs-dignitas-nine-to-five-4"))
