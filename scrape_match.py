@@ -48,7 +48,7 @@ def scrape_match(link):
         else:
             team2['history']=list(zip(teamsH,resultH,scoreH))
             
-    #scrap team rosters
+    #scrape team rosters
     first=True
     rosters=soup.select('div.lineup div.players table')
     for r in rosters:
@@ -79,7 +79,7 @@ def scrape_match(link):
     info['team1']=team1
     info['team2']=team2
     
-    #ratings and performance 
+    #ratings and performance **TO-DO
     # stats=soup.select("div#all-content table.table.totalstats")
     # if (stats!=[]):
     #     print(stats[0])
